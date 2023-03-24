@@ -1,7 +1,6 @@
 <template>
     <div>
-        presenter
-        <pre>{{ verse }}</pre>
+        {{ verse.lyrics }}
     </div>
 </template>
 
