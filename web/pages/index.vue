@@ -7,10 +7,7 @@
                     <template v-for="(verse, index) in song.verses" :key="index">
                         <v-list-item @click="updateLocalStorage( verse.lyrics )">
                             <v-list-item-title>{{ verse.name }}</v-list-item-title>
-
-                            <v-list-item-subtitle>
-                                {{ verse.lyrics }}
-                            </v-list-item-subtitle>
+                            <v-list-item-subtitle>{{ verse.lyrics }}</v-list-item-subtitle>
                         </v-list-item>
 
 <!--                        <v-divider v-if="index !== song.verses - 1" inset />-->

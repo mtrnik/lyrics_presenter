@@ -4,5 +4,7 @@ export interface Verse {
 
 export interface Song {
     name: string
+    slug: string,
+    lyrics: string,
     verses: Verse[]
 }
