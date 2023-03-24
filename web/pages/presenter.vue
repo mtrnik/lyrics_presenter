@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="flex items-center h-screen justify-center text-6xl text-center bg-black text-white p-16 leading-loose">
         {{ verse.lyrics }}
     </div>
 </template>
