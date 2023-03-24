@@ -7,6 +7,10 @@
 <script lang="ts">
 import {Verse} from "~/types/types";
 
+definePageMeta({
+    layout: false,
+});
+
 export default defineNuxtComponent({
     name: "presenter",
     data() {
