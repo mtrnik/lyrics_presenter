@@ -13,11 +13,7 @@
                             </v-list-item-subtitle>
                         </v-list-item>
 
-                        <!--                                    <v-divider-->
-                        <!--                                        v-if="n !== 6"-->
-                        <!--                                        :key="`divider-${n}`"-->
-                        <!--                                        inset-->
-                        <!--                                    ></v-divider>-->
+<!--                        <v-divider v-if="index !== song.verses - 1" inset />-->
                     </template>
                 </v-list>
             </v-card>
