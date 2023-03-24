@@ -32,7 +32,6 @@ export default defineNuxtComponent({
             }, 100)
         },
         readLocalStorage() {
-            console.debug('readLocalStorage')
             this.verse = JSON.parse( localStorage.getItem('lyrics_presenter_verse') ?? '{}' )
         }
     }
