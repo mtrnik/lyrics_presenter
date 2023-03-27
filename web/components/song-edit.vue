@@ -5,12 +5,22 @@
         </v-card-title>
         <v-card-text>
             <v-container>
-                <v-row>
+                <v-row v-if="step === 'lyrics'">
                     <v-col cols="12">
                         <v-text-field v-model="song.name" label="Song Name" />
                     </v-col>
                     <v-col cols="12">
                         <v-textarea v-model="song.lyrics" label="Song Lyrics" />
+                    </v-col>
+                </v-row>
+                <v-row v-if="step === 'verses'">
+                    <v-col cols="12">
+                        <template v-for="verse in song.verses" :key="verse.tag">
+                            <v-list-item>
+                                <v-list-item-title>{{ verse.tag }}</v-list-item-title>
+                                <v-list-item-subtitle>{{ verse.lyrics }}</v-list-item-subtitle>
+                            </v-list-item>
+                        </template>
                     </v-col>
                 </v-row>
             </v-container>
@@ -20,7 +30,10 @@
             <v-btn color="blue-darken-1" variant="text" @click="$emit('close')">
                 Close
             </v-btn>
-            <v-btn color="blue-darken-1" variant="text" @click="saveChanges()">
+            <v-btn v-if="step === 'lyrics'" color="blue-darken-1" variant="text" @click="processVerses()">
+                Next
+            </v-btn>
+            <v-btn v-if="step === 'verses'" color="blue-darken-1" variant="text" @click="saveChanges()">
                 Save
             </v-btn>
         </v-card-actions>
@@ -32,6 +45,9 @@ import {Song} from "~/types/types";
 import slugify from "slugify";
 import {useSongsStore} from "~/store/songs.store";
 import {useLyricsParser} from "~/composables/lyricsParser.service";
+import {PropType} from "@vue/runtime-core";
+
+type StepEnum = 'lyrics' | 'verses'
 
 export default defineNuxtComponent({
     name: "song-edit",
@@ -51,8 +67,10 @@ export default defineNuxtComponent({
         }
     },
     data() {
+        const step = <StepEnum>'lyrics'
+
         return {
-            editSong: {} as Song
+            step
         }
     },
     computed: {
@@ -64,22 +82,18 @@ export default defineNuxtComponent({
         this.songsStore.fetchSongs()
     },
     methods: {
-        async saveChanges() {
+        processVerses() {
             const slug = slugify( this.song.name )
 
             const verses = this.lyricsParser.parseLyrics( this.song.lyrics )
 
-            const song: Song = {
-                slug,
-                name: this.song.name,
-                lyrics: this.song.lyrics,
-                verses: [ ...verses ]
-            }
+            this.song.slug = slug
+            this.song.verses = [ ...verses ]
 
-            // TODO processVerses
-
-            await this.songsStore.saveSong( song )
-
+            this.step = <StepEnum>'verses'
+        },
+        async saveChanges() {
+            await this.songsStore.saveSong( JSON.parse( JSON.stringify( this.song ) ) )
             this.$emit('close')
         },
 
