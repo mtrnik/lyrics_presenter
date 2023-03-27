@@ -1,5 +1,6 @@
 export interface Verse {
-    lyrics?: string
+    lyrics: string
+    tag: string
 }
 
 export interface Song {
