@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     build: {
         transpile: ['vuetify'],
     },
+    modules: ['@pinia/nuxt'],
     postcss: {
         plugins: {
             tailwindcss: {},

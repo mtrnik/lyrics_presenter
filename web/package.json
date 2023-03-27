@@ -15,9 +15,14 @@
   },
   "dependencies": {
     "@mdi/font": "^7.2.96",
+    "@pinia/nuxt": "^0.4.7",
     "localforage": "^1.10.0",
+    "pinia": "^2.0.33",
     "sass": "^1.60.0",
     "slugify": "^1.6.5",
     "vuetify": "^3.1.11"
+  },
+  "overrides": {
+    "vue": "latest"
   }
 }

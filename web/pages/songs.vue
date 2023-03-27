@@ -48,26 +48,33 @@
 </template>
 
 <script lang="ts">
-import {Song, Verse} from "~/types/types";
-import localforage from "localforage";
+import {Song} from "~/types/types";
 import slugify from "slugify";
+import {useSongsStore} from "~/store/songs.store";
 
 export default defineNuxtComponent({
     name: "songs",
-    data() {
-        const songs: Song[] = []
+    setup() {
+        const songsStore = useSongsStore()
 
         return {
-            songs,
-
+            songsStore
+        }
+    },
+    data() {
+        return {
             editDialog: false,
             editSong: {} as Song
         }
     },
-    mounted() {
-        this.readSongsFromDB()
+    computed: {
+        songs(): Song[] {
+            return this.songsStore.songs
+        }
     },
-
+    mounted() {
+        this.songsStore.fetchSongs()
+    },
     methods: {
         showEditDialog( song?: Song ) {
             this.editDialog = true
@@ -80,25 +87,18 @@ export default defineNuxtComponent({
         async saveChanges() {
             const slug = slugify(this.editSong.name)
 
-            const songData = {
+            const song: Song = {
                 slug,
                 name: this.editSong.name,
                 lyrics: this.editSong.lyrics,
                 verses: [ ...this.editSong.verses ]
             }
 
-            await localforage.setItem( slug, songData )
-            this.readSongsFromDB()
+            await this.songsStore.saveSong( song )
 
             this.editDialog = false
         },
-        async readSongsFromDB() {
-            this.songs = []
 
-            localforage.iterate((value, key) => {
-                this.songs.push( value as Song )
-            })
-        }
     }
 })
 </script>
