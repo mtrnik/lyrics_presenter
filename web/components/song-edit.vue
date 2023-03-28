@@ -15,9 +15,9 @@
                 </v-row>
                 <v-row v-if="step === 'verses'">
                     <v-col cols="12">
-                        <template v-for="verse in song.verses" :key="verse.tag">
+                        <template v-for="(verse, index) in song.verses" :key="index">
                             <v-list-item>
-                                <v-list-item-title>{{ verse.tag }}</v-list-item-title>
+                                <v-text-field label="Tag" v-model="verse.tag"/>
                                 <v-list-item-subtitle>{{ verse.lyrics }}</v-list-item-subtitle>
                             </v-list-item>
                         </template>
@@ -85,7 +85,7 @@ export default defineNuxtComponent({
         processVerses() {
             const slug = slugify( this.song.name )
 
-            const verses = this.lyricsParser.parseLyrics( this.song.lyrics )
+            const verses = this.lyricsParser.parseLyrics( this.song.lyrics, this.song.verses )
 
             this.song.slug = slug
             this.song.verses = [ ...verses ]
