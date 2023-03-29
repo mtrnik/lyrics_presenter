@@ -17,8 +17,12 @@
                     <v-col cols="12">
                         <template v-for="(verse, index) in song.verses" :key="index">
                             <v-list-item>
-                                <v-text-field label="Tag" v-model="verse.tag"/>
-                                <contenteditable tag="div" :contenteditable="true" v-model="verse.lyrics" :no-nl="false" :no-html="false" />
+                                <v-list-item-title>
+                                    <contenteditable tag="span" :contenteditable="true" v-model="verse.tag" :no-nl="true" :no-html="true" />
+                                </v-list-item-title>
+                                <v-list-item-subtitle>
+                                    <contenteditable tag="div" :contenteditable="true" v-model="verse.lyrics" :no-nl="false" :no-html="false" />
+                                </v-list-item-subtitle>
                             </v-list-item>
                         </template>
                         <v-col cols="12">
