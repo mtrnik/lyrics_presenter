@@ -18,7 +18,7 @@
                         <template v-for="(verse, index) in song.verses" :key="index">
                             <v-list-item>
                                 <v-text-field label="Tag" v-model="verse.tag"/>
-                                <v-list-item-subtitle>{{ verse.lyrics }}</v-list-item-subtitle>
+                                <contenteditable tag="div" :contenteditable="true" v-model="verse.lyrics" :no-nl="false" :no-html="false" />
                             </v-list-item>
                         </template>
                         <v-col cols="12">
@@ -31,7 +31,7 @@
                         <template v-for="(verse, index) in song.verses" :key="index">
                             <v-list-item>
                                 <v-list-item-title>{{ verse.tag }}</v-list-item-title>
-                                <v-list-item-subtitle>{{ verse.lyrics }}</v-list-item-subtitle>
+                                <v-list-item-subtitle v-html="verse.lyrics" />
                                 <span @click="addVerseToOrder(verse.tag)">Add</span>
                             </v-list-item>
                         </template>
@@ -66,13 +66,14 @@
 </template>
 
 <script lang="ts">
-import {Song, Verse} from "~/types/types";
+import {PropType} from "@vue/runtime-core";
 import slugify from "slugify";
+import contenteditable from 'vue-contenteditable';
+import { v4 as uuidv4 } from 'uuid';
+import draggable from 'vuedraggable'
+import {Song} from "~/types/types";
 import {useSongsStore} from "~/store/songs.store";
 import {useLyricsParser} from "~/composables/lyricsParser.service";
-import {PropType} from "@vue/runtime-core";
-import draggable from 'vuedraggable'
-import { v4 as uuidv4 } from 'uuid';
 
 type StepEnum = 'lyrics' | 'verses' | 'order'
 
@@ -85,6 +86,7 @@ export default defineNuxtComponent({
         },
     },
     components: {
+        contenteditable,
         draggable,
     },
     setup() {
@@ -112,7 +114,7 @@ export default defineNuxtComponent({
     },
     methods: {
         prepareVerses() {
-            const slug = slugify( this.song.name )
+            const slug = slugify( this.song.name, { lower: true} )
 
             const verses = this.lyricsParser.parseLyrics( this.song.lyrics )
 
@@ -123,8 +125,10 @@ export default defineNuxtComponent({
             this.step = <StepEnum>'verses'
         },
         processVerses() {
-            const verses = this.lyricsParser.parseLyrics( this.newLyrics )
-            this.song.verses = [ ...this.song.verses, ...verses ]
+            if ( this.newLyrics ) {
+                const verses = this.lyricsParser.parseLyrics( this.newLyrics )
+                this.song.verses = [ ...this.song.verses, ...verses ]
+            }
 
             this.step = <StepEnum>'order'
         },
