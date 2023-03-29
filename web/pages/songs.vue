@@ -5,9 +5,22 @@
             <v-card>
                 <v-list>
                     <template v-for="song in songs" :key="song.id">
-                        <v-list-item @click="showEditDialog(song)">
+                        <v-list-item>
                             <v-list-item-title>{{ song.name }}</v-list-item-title>
                             <v-list-item-subtitle>{{ song.lyrics }}</v-list-item-subtitle>
+                            <v-menu activator="parent">
+                                <v-list>
+                                    <v-list-item @click="showAddToServiceDialog(song)">
+                                        <v-list-item-title>Add to Service</v-list-item-title>
+                                    </v-list-item>
+                                    <v-list-item @click="showEditDialog(song)">
+                                        <v-list-item-title>Edit</v-list-item-title>
+                                    </v-list-item>
+                                    <v-list-item @click="showDeleteDialog(song)">
+                                        <v-list-item-title>Delete</v-list-item-title>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
                         </v-list-item>
 
                         <!--                        <v-divider v-if="index !== song.verses - 1" inset />-->
@@ -53,6 +66,10 @@ export default defineNuxtComponent({
         this.songsStore.fetchSongs()
     },
     methods: {
+        showAddToServiceDialog( song: Song ) {
+            console.debug('song', song)
+        },
+
         showEditDialog( song?: Song ) {
             this.editDialog = true
             this.editSong = { id: '', name: '', slug: '', lyrics: '', verses: [], orderedTags: [] }
@@ -61,6 +78,10 @@ export default defineNuxtComponent({
                 this.editSong = { ...this.editSong, ...song }
             }
         },
+
+        showDeleteDialog( song: Song ) {
+            console.debug('song', song)
+        }
     }
 })
 </script>
