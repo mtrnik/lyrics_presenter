@@ -21,6 +21,28 @@
                                 <v-list-item-subtitle>{{ verse.lyrics }}</v-list-item-subtitle>
                             </v-list-item>
                         </template>
+                        <v-col cols="12">
+                            <v-textarea v-model="newLyrics" label="Add Additional Lyrics" />
+                        </v-col>
+                    </v-col>
+                </v-row>
+                <v-row v-if="step === 'order'">
+                    <v-col cols="12">
+                        <template v-for="(verse, index) in song.verses" :key="index">
+                            <v-list-item>
+                                <v-list-item-title>{{ verse.tag }}</v-list-item-title>
+                                <v-list-item-subtitle>{{ verse.lyrics }}</v-list-item-subtitle>
+                                <span @click="addVerseToOrder(verse.tag)">Add</span>
+                            </v-list-item>
+                        </template>
+<!--                        <draggable-->
+<!--                            v-model="song.orderedTags"-->
+<!--                        >-->
+<!--                            <template #item="{tag}">-->
+<!--                                <div>{{tag}}</div>-->
+<!--                                <span @click="removeFromOrder(tag)">Remove</span>-->
+<!--                            </template>-->
+<!--                        </draggable>-->
                     </v-col>
                 </v-row>
             </v-container>
@@ -30,10 +52,13 @@
             <v-btn color="blue-darken-1" variant="text" @click="$emit('close')">
                 Close
             </v-btn>
-            <v-btn v-if="step === 'lyrics'" color="blue-darken-1" variant="text" @click="processVerses()">
+            <v-btn v-if="step === 'lyrics'" color="blue-darken-1" variant="text" @click="prepareVerses()">
                 Next
             </v-btn>
-            <v-btn v-if="step === 'verses'" color="blue-darken-1" variant="text" @click="saveChanges()">
+            <v-btn v-if="step === 'verses'" color="blue-darken-1" variant="text" @click="processVerses()">
+                Next
+            </v-btn>
+            <v-btn v-if="step === 'order'" color="blue-darken-1" variant="text" @click="saveChanges()">
                 Save
             </v-btn>
         </v-card-actions>
@@ -41,13 +66,15 @@
 </template>
 
 <script lang="ts">
-import {Song} from "~/types/types";
+import {Song, Verse} from "~/types/types";
 import slugify from "slugify";
 import {useSongsStore} from "~/store/songs.store";
 import {useLyricsParser} from "~/composables/lyricsParser.service";
 import {PropType} from "@vue/runtime-core";
+import draggable from 'vuedraggable'
+import { v4 as uuidv4 } from 'uuid';
 
-type StepEnum = 'lyrics' | 'verses'
+type StepEnum = 'lyrics' | 'verses' | 'order'
 
 export default defineNuxtComponent({
     name: "song-edit",
@@ -56,6 +83,9 @@ export default defineNuxtComponent({
             type: Object as PropType<Song>,
             required: true
         },
+    },
+    components: {
+        draggable,
     },
     setup() {
         const lyricsParser = useLyricsParser()
@@ -70,32 +100,52 @@ export default defineNuxtComponent({
         const step = <StepEnum>'lyrics'
 
         return {
-            step
+            step,
+            newLyrics: ''
         }
     },
-    computed: {
-        songs(): Song[] {
-            return this.songsStore.songs
-        }
-    },
+    computed: {},
     mounted() {
-        this.songsStore.fetchSongs()
+        if ( this.song.id ) {
+            this.step = 'verses'
+        }
     },
     methods: {
-        processVerses() {
+        prepareVerses() {
             const slug = slugify( this.song.name )
 
-            const verses = this.lyricsParser.parseLyrics( this.song.lyrics, this.song.verses )
+            const verses = this.lyricsParser.parseLyrics( this.song.lyrics )
 
+            this.song.id = uuidv4()
             this.song.slug = slug
             this.song.verses = [ ...verses ]
 
             this.step = <StepEnum>'verses'
         },
+        processVerses() {
+            const verses = this.lyricsParser.parseLyrics( this.newLyrics )
+            this.song.verses = [ ...this.song.verses, ...verses ]
+
+            this.step = <StepEnum>'order'
+        },
         async saveChanges() {
+            console.debug(JSON.parse( JSON.stringify( this.song ) ))
+
             await this.songsStore.saveSong( JSON.parse( JSON.stringify( this.song ) ) )
             this.$emit('close')
         },
+
+        addVerseToOrder( tag: string ) {
+            this.song.orderedTags.push( tag )
+        },
+        removeFromOrder( tag: string ) {
+
+            // TODO what if multiple
+            const tagIndex = this.song.orderedTags.findIndex( orderedTag => orderedTag === tag )
+            if ( tagIndex >= 0 ) {
+                this.song.orderedTags.splice( tagIndex, 1 )
+            }
+        }
 
     }
 })

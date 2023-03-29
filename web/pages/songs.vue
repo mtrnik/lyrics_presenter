@@ -55,10 +55,10 @@ export default defineNuxtComponent({
     methods: {
         showEditDialog( song?: Song ) {
             this.editDialog = true
+            this.editSong = { id: '', name: '', slug: '', lyrics: '', verses: [], orderedTags: [] }
+
             if ( song ) {
-                this.editSong = song
-            } else {
-                this.editSong = { name: '', slug: '', lyrics: '', verses: [] }
+                this.editSong = { ...this.editSong, ...song }
             }
         },
     }
