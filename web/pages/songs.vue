@@ -33,6 +33,11 @@
     <v-dialog v-model="editDialog" width="600">
         <song-edit :song="editSong" @close="editDialog = false" />
     </v-dialog>
+
+    <v-dialog v-model="deleteDialog" width="600">
+        <song-delete :song="editSong" @close="deleteDialog = false" />
+    </v-dialog>
+
 </template>
 
 <script lang="ts">
@@ -54,6 +59,8 @@ export default defineNuxtComponent({
     data() {
         return {
             editDialog: false,
+            deleteDialog: false,
+
             editSong: {} as Song
         }
     },
@@ -80,7 +87,8 @@ export default defineNuxtComponent({
         },
 
         showDeleteDialog( song: Song ) {
-            console.debug('song', song)
+            this.deleteDialog = true
+            this.editSong = song
         }
     }
 })

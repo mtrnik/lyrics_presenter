@@ -20,6 +20,11 @@ export const useSongsStore = defineStore('songs', {
         async saveSong(song: Song): Promise<void> {
             await saveSongToLocalForage( song )
             await this.fetchSongs()
+        },
+
+        async deleteSong(song: Song): Promise<void> {
+            await removeSongFromLocalForage( song )
+            await this.fetchSongs()
         }
     },
 })
@@ -36,4 +41,8 @@ async function readSongsFromLocalForage(): Promise<Song[]> {
 
 async function saveSongToLocalForage(song: Song): Promise<void> {
     await localforage.setItem( song.slug, song )
+}
+
+async function removeSongFromLocalForage(song: Song): Promise<void> {
+    await localforage.removeItem( song.slug )
 }
