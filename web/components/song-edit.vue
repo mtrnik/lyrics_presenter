@@ -23,6 +23,9 @@
                                 <v-list-item-subtitle>
                                     <contenteditable tag="div" :contenteditable="true" v-model="verse.lyrics" :no-nl="false" :no-html="false" />
                                 </v-list-item-subtitle>
+                                <v-list-item-action start>
+                                    <span @click="removeVerse( verse.tag )">delete</span>
+                                </v-list-item-action>
                             </v-list-item>
                         </template>
                         <v-col cols="12">
@@ -36,7 +39,7 @@
                             <v-list-item>
                                 <v-list-item-title>{{ verse.tag }}</v-list-item-title>
                                 <v-list-item-subtitle v-html="verse.lyrics" />
-                                <span @click="addVerseToOrder(verse.tag)">Add</span>
+                                <span @click="addVerseToOrder( verse.tag )">Add</span>
                             </v-list-item>
                         </template>
 <!--                        <draggable-->
@@ -141,6 +144,16 @@ export default defineNuxtComponent({
 
             await this.songsStore.saveSong( JSON.parse( JSON.stringify( this.song ) ) )
             this.$emit('close')
+        },
+
+        removeVerse( verseTag: string ) {
+            const verseIndex = this.song.verses.findIndex( verse => verse.tag === verseTag )
+
+            if ( verseIndex >= 0 ) {
+                this.song.verses.splice( verseIndex, 1 )
+            }
+
+            this.song.orderedTags = this.song.orderedTags.filter( tag => tag !== verseTag )
         },
 
         addVerseToOrder( tag: string ) {
