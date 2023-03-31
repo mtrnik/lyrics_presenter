@@ -10,48 +10,49 @@
                         <v-text-field v-model="song.name" label="Song Name" />
                     </v-col>
                     <v-col cols="12">
-                        <v-textarea v-model="song.lyrics" label="Song Lyrics" />
+                        <div id="editorjs" />
+<!--                        <v-textarea v-model="song.lyrics" label="Song Lyrics" />-->
                     </v-col>
                 </v-row>
-                <v-row v-if="step === 'verses'">
-                    <v-col cols="12">
-                        <template v-for="(verse, index) in song.verses" :key="index">
-                            <v-list-item>
-                                <v-list-item-title>
-                                    <contenteditable tag="span" :contenteditable="true" v-model="verse.tag" :no-nl="true" :no-html="true" />
-                                </v-list-item-title>
-                                <v-list-item-subtitle>
-                                    <contenteditable tag="div" :contenteditable="true" v-model="verse.lyrics" :no-nl="false" :no-html="false" />
-                                </v-list-item-subtitle>
-                                <v-list-item-action start>
-                                    <span @click="removeVerse( verse.tag )">delete</span>
-                                </v-list-item-action>
-                            </v-list-item>
-                        </template>
-                        <v-col cols="12">
-                            <v-textarea v-model="newLyrics" label="Add Additional Lyrics" />
-                        </v-col>
-                    </v-col>
-                </v-row>
-                <v-row v-if="step === 'order'">
-                    <v-col cols="12">
-                        <template v-for="(verse, index) in song.verses" :key="index">
-                            <v-list-item>
-                                <v-list-item-title>{{ verse.tag }}</v-list-item-title>
-                                <v-list-item-subtitle v-html="verse.lyrics" />
-                                <span @click="addVerseToOrder( verse.tag )">Add</span>
-                            </v-list-item>
-                        </template>
-<!--                        <draggable-->
-<!--                            v-model="song.orderedTags"-->
-<!--                        >-->
-<!--                            <template #item="{tag}">-->
-<!--                                <div>{{tag}}</div>-->
-<!--                                <span @click="removeFromOrder(tag)">Remove</span>-->
-<!--                            </template>-->
-<!--                        </draggable>-->
-                    </v-col>
-                </v-row>
+<!--                <v-row v-if="step === 'verses'">-->
+<!--                    <v-col cols="12">-->
+<!--                        <template v-for="(verse, index) in song.verses" :key="index">-->
+<!--                            <v-list-item>-->
+<!--                                <v-list-item-title>-->
+<!--                                    <contenteditable tag="span" :contenteditable="true" v-model="verse.tag" :no-nl="true" :no-html="true" />-->
+<!--                                </v-list-item-title>-->
+<!--                                <v-list-item-subtitle>-->
+<!--                                    <contenteditable tag="div" :contenteditable="true" v-model="verse.lyrics" :no-nl="false" :no-html="false" />-->
+<!--                                </v-list-item-subtitle>-->
+<!--                                <v-list-item-action start>-->
+<!--                                    <span @click="removeVerse( verse.tag )">delete</span>-->
+<!--                                </v-list-item-action>-->
+<!--                            </v-list-item>-->
+<!--                        </template>-->
+<!--                        <v-col cols="12">-->
+<!--                            <v-textarea v-model="newLyrics" label="Add Additional Lyrics" />-->
+<!--                        </v-col>-->
+<!--                    </v-col>-->
+<!--                </v-row>-->
+<!--                <v-row v-if="step === 'order'">-->
+<!--                    <v-col cols="12">-->
+<!--                        <template v-for="(verse, index) in song.verses" :key="index">-->
+<!--                            <v-list-item>-->
+<!--                                <v-list-item-title>{{ verse.tag }}</v-list-item-title>-->
+<!--                                <v-list-item-subtitle v-html="verse.lyrics" />-->
+<!--                                <span @click="addVerseToOrder( verse.tag )">Add</span>-->
+<!--                            </v-list-item>-->
+<!--                        </template>-->
+<!--&lt;!&ndash;                        <draggable&ndash;&gt;-->
+<!--&lt;!&ndash;                            v-model="song.orderedTags"&ndash;&gt;-->
+<!--&lt;!&ndash;                        >&ndash;&gt;-->
+<!--&lt;!&ndash;                            <template #item="{tag}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <div>{{tag}}</div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <span @click="removeFromOrder(tag)">Remove</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </template>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </draggable>&ndash;&gt;-->
+<!--                    </v-col>-->
+<!--                </v-row>-->
             </v-container>
         </v-card-text>
         <v-card-actions>
@@ -74,10 +75,11 @@
 
 <script lang="ts">
 import {PropType} from "@vue/runtime-core";
+import EditorJS from '@editorjs/editorjs';
 import slugify from "slugify";
-import contenteditable from 'vue-contenteditable';
-import { v4 as uuidv4 } from 'uuid';
-import draggable from 'vuedraggable'
+// import contenteditable from 'vue-contenteditable';
+// import { v4 as uuidv4 } from 'uuid';
+// import draggable from 'vuedraggable'
 import {Song} from "~/types/types";
 import {useSongsStore} from "~/store/songs.store";
 import {useLyricsParser} from "~/composables/lyricsParser.service";
@@ -93,8 +95,8 @@ export default defineNuxtComponent({
         },
     },
     components: {
-        contenteditable,
-        draggable,
+        // contenteditable,
+        // draggable,
     },
     setup() {
         const lyricsParser = useLyricsParser()
@@ -107,29 +109,41 @@ export default defineNuxtComponent({
     },
     data() {
         const step = <StepEnum>'lyrics'
+        const editor: EditorJS = {} as EditorJS
 
         return {
             step,
-            newLyrics: ''
+            newLyrics: '',
+            editor
         }
     },
     computed: {},
-    mounted() {
+    async mounted() {
+        this.editor = new EditorJS({
+            holder : 'editorjs',
+            placeholder: 'Let`s write an awesome story!',
+            data: {}
+        });
+
+
         if ( this.song.id ) {
             this.step = 'verses'
         }
     },
     methods: {
-        prepareVerses() {
-            const slug = slugify( this.song.name, { lower: true} )
+        async prepareVerses() {
+            // const slug = slugify( this.song.name, { lower: true} )
 
-            const verses = this.lyricsParser.parseLyrics( this.song.lyrics )
+            // const verses = this.lyricsParser.parseLyrics( this.song.lyrics )
 
-            this.song.id = uuidv4()
-            this.song.slug = slug
-            this.song.verses = [ ...verses ]
+            const outputData = await this.editor.save()
+            console.debug('outputData', outputData)
 
-            this.step = <StepEnum>'verses'
+            // this.song.id = uuidv4()
+            // this.song.slug = slug
+            // this.song.verses = [ ...verses ]
+            //
+            // this.step = <StepEnum>'verses'
         },
         processVerses() {
             if ( this.newLyrics ) {
