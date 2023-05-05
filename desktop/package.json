@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.33.1",
-    "electron": "^22.0.0",
+    "electron": "^24.2.0",
     "electron-builder": "^23.6.0",
     "eslint": "^8.29.0",
     "nuxt": "3.4.3",
