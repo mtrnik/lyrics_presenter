@@ -1,3 +1,5 @@
+.DS_Store
+
 node_modules
 *.log*
 .nuxt
@@ -6,4 +8,6 @@ node_modules
 .output
 .env
 dist
-.DS_Store
+dist-electron
+release
+**/*.db
